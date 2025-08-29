@@ -1,0 +1,4 @@
+timestamp,load,temperature,humidity,day_type
+2025-01-08 00:00:00,121.2,16.0,29,weekday
+2025-01-08 01:00:00,119.4,15.6,30,weekday
+2025-01-08 02:00:00,116.8,15.1,31,weekday
