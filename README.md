@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo.png" alt="Energy Load Forecaster Logo" width="200"/>
+</p>
+
 #  Energy-Load-Forecaster (ELF)
 
 **Accurate short-term load forecasting for smarter, greener buildings.**
