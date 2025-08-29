@@ -1,0 +1,44 @@
+
+dataset:
+  train_path: "data/train.csv"   
+  test_path: "data/test.csv"     
+  datetime_col: "timestamp"      
+  target_col: "load"             
+  external_features:             
+    - temperature
+    - humidity
+    - day_type
+
+
+model:
+  type: "tsfm"                   
+  input_length: 168              
+  forecast_horizon: 24           
+  hidden_size: 128
+  num_layers: 4
+  dropout: 0.2
+
+
+training:
+  batch_size: 32
+  learning_rate: 0.001
+  epochs: 20
+  optimizer: "adam"
+
+
+evaluation:
+  metrics:
+    - mae
+    - rmse
+    - mape
+
+
+anomaly_detection:
+  method: "zscore"              
+  threshold: 3.0
+
+
+output:
+  forecasts_dir: "outputs/forecasts"
+  anomalies_dir: "outputs/anomalies"
+  logs_dir: "outputs/logs"
