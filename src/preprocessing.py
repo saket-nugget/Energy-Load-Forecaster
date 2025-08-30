@@ -1,5 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+import os
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -42,3 +44,16 @@ class Preprocessor:
         df = self.feature_engineering(df, datetime_col)
         df = self.scale_features(df)
         return df
+
+    def split_and_save(self, df: pd.DataFrame, train_path: str, test_path: str, test_size: float = 0.2):
+        """Split into train/test and save as CSV files."""
+        train_df, test_df = train_test_split(df, test_size=test_size, shuffle=False)
+
+        os.makedirs(os.path.dirname(train_path), exist_ok=True)
+        train_df.to_csv(train_path, index=False)
+        test_df.to_csv(test_path, index=False)
+
+        logger.info(f"Saved train set to {train_path} with shape {train_df.shape}")
+        logger.info(f"Saved test set to {test_path} with shape {test_df.shape}")
+
+        return train_df, test_df

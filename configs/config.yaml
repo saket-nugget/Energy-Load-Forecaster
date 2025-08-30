@@ -1,8 +1,6 @@
 
 dataset:
-  raw_path: "data/raw/PJME_hourly.csv"
-  train_path: "data/train.csv"
-  test_path: "data/test.csv"
+  raw_path: data/raw/PJM(AEP)_energy_dataset.csv
   datetime_col: "Datetime"
   target: "PJME_MW"
   features:

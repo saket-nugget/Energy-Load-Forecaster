@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from sklearn.model_selection import train_test_split
 from utils.logger import get_logger
 from utils.config import load_config
 
@@ -34,11 +35,23 @@ def load_data(config_path: str = "configs/config.yaml", weather_df: pd.DataFrame
     config = load_config(config_path)
     dataset_cfg = config["dataset"]
 
-    train_df = load_dataset(dataset_cfg["train_path"], dataset_cfg.get("datetime_col"))
-    test_df = load_dataset(dataset_cfg["test_path"], dataset_cfg.get("datetime_col"))
+    # Load raw dataset
+    full_df = load_dataset(dataset_cfg["raw_path"], dataset_cfg.get("datetime_col"))
+    full_df = merge_weather_data(full_df, weather_df, dataset_cfg.get("datetime_col"))
 
-    train_df = merge_weather_data(train_df, weather_df, dataset_cfg.get("datetime_col"))
-    test_df = merge_weather_data(test_df, weather_df, dataset_cfg.get("datetime_col"))
+    # Split into train/test
+    test_size = dataset_cfg.get("test_size", 0.2)
+    random_state = dataset_cfg.get("random_state", 42)
 
-    logger.info("Datasets loaded successfully")
+    train_df, test_df = train_test_split(
+        full_df,
+        test_size=test_size,
+        random_state=random_state,
+        shuffle=True
+    )
+
+    logger.info(
+        f"Dataset split into train ({len(train_df)}) and test ({len(test_df)})"
+    )
+
     return train_df, test_df
