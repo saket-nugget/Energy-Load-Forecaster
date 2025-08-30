@@ -16,11 +16,16 @@ class Preprocessor:
         return df
 
     def feature_engineering(self, df: pd.DataFrame, datetime_col: str) -> pd.DataFrame:
+        if datetime_col not in df.columns:
+            logger.warning(f"Datetime column '{datetime_col}' not found, skipping feature engineering")
+            return df
+
         df[datetime_col] = pd.to_datetime(df[datetime_col])
         df["hour"] = df[datetime_col].dt.hour
         df["dayofweek"] = df[datetime_col].dt.dayofweek
         df["month"] = df[datetime_col].dt.month
-        df["is_weekend"] = df[datetime_col].dt.dayofweek >= 5
+        df["is_weekend"] = (df[datetime_col].dt.dayofweek >= 5).astype(int)
+
         logger.info("Added time-based features")
         return df
 

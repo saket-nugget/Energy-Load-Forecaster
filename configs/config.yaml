@@ -1,13 +1,18 @@
 
 dataset:
-  train_path: "data/train.csv"   
-  test_path: "data/test.csv"     
-  datetime_col: "timestamp"      
-  target_col: "load"             
-  external_features:             
+  train_path: "data/train.csv"
+  test_path: "data/test.csv"
+  datetime_col: "datetime"
+  target: "energy_consumption"
+  features:
     - temperature
     - humidity
-    - day_type
+    - windspeed
+    - hour
+    - dayofweek
+    - month
+    - is_weekend
+
 
 
 model:

@@ -76,6 +76,30 @@ Python, PyTorch, Hugging Face Transformers, Time Series Foundation Models (TSFMs
 
 ---
 
+##  Usage Instructions
+
+### 1. Clone the repository
+git clone https://github.com/saket-nugget/Energy-Load-Forecaster.git
+cd Energy-Load-Forecaster
+
+### 2.Install Dependencies
+pip install -r requirements.txt
+
+### 3.Prepare your dataset
+Place your dataset (CSV format) in the data/ folder.
+The dataset should include:
+
+timestamp (date/time)
+
+energy_consumption (load values)
+
+Optional: temperature, humidity, day_type
+
+### 4.Run the main file
+Trains,Evaluates,Detects anomalies, and finally forecasts.
+
+---
+
 ##  Try it Out
 [GitHub Repository](https://github.com/saket-nugget/Energy-Load-Forecaster)
 
