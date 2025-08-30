@@ -13,20 +13,16 @@ from utils.config import load_config
 
 
 def evaluate():
-    # --- 1. Load Config ---
     config = load_config("configs/config.yaml")
 
-    # --- 2. Logger ---
     logger = get_logger("evaluate")
 
-    # --- 3. Load Test Data ---
     test_df, _ = load_data(config["data"]["test_path"], None)
     X_test, y_test = preprocess_data(test_df, config)
 
     X_test = torch.tensor(X_test, dtype=torch.float32)
     y_test = torch.tensor(y_test, dtype=torch.float32)
 
-    # --- 4. Load Model ---
     model = TransformerForecaster(
         input_dim=config["model"]["input_dim"],
         model_dim=config["model"]["model_dim"],
@@ -38,12 +34,10 @@ def evaluate():
     model.load_state_dict(torch.load("outputs/forecasts/best_model.pth"))
     model.eval()
 
-    # --- 5. Run Predictions ---
     with torch.no_grad():
         predictions = model(X_test).numpy()
         y_true = y_test.numpy()
 
-    # --- 6. Metrics ---
     mae = np.mean(np.abs(y_true - predictions))
     rmse = np.sqrt(np.mean((y_true - predictions) ** 2))
     mape = np.mean(np.abs((y_true - predictions) / (y_true + 1e-8))) * 100
@@ -56,7 +50,6 @@ def evaluate():
 
     logger.info(f"📊 Evaluation Metrics: {metrics}")
 
-    # --- 7. Save Results ---
     os.makedirs("outputs/evaluation", exist_ok=True)
     pd.DataFrame(predictions, columns=["forecast"]).to_csv("outputs/evaluation/forecasts.csv", index=False)
     pd.DataFrame([metrics]).to_csv("outputs/evaluation/metrics.csv", index=False)
