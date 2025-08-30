@@ -35,23 +35,15 @@ def load_data(config_path: str = "configs/config.yaml", weather_df: pd.DataFrame
     config = load_config(config_path)
     dataset_cfg = config["dataset"]
 
-    # Load raw dataset
-    full_df = load_dataset(dataset_cfg["raw_path"], dataset_cfg.get("datetime_col"))
-    full_df = merge_weather_data(full_df, weather_df, dataset_cfg.get("datetime_col"))
+    # load raw dataset
+    raw_df = load_dataset(dataset_cfg["raw_path"], dataset_cfg.get("datetime_col"))
 
-    # Split into train/test
-    test_size = dataset_cfg.get("test_size", 0.2)
-    random_state = dataset_cfg.get("random_state", 42)
+    # split into train/test (80/20 default)
+    train_df, test_df = train_test_split(raw_df, test_size=0.2, shuffle=False)
 
-    train_df, test_df = train_test_split(
-        full_df,
-        test_size=test_size,
-        random_state=random_state,
-        shuffle=True
-    )
+    # merge with weather data if provided
+    train_df = merge_weather_data(train_df, weather_df, dataset_cfg.get("datetime_col"))
+    test_df = merge_weather_data(test_df, weather_df, dataset_cfg.get("datetime_col"))
 
-    logger.info(
-        f"Dataset split into train ({len(train_df)}) and test ({len(test_df)})"
-    )
-
+    logger.info("Datasets loaded and split successfully")
     return train_df, test_df
