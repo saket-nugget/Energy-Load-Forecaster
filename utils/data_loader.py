@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 from utils.logger import get_logger
-from utils.config_parser import load_config
+from utils.config import load_config
 
 logger = get_logger(__name__)
 
