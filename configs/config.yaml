@@ -1,13 +1,11 @@
 
 dataset:
+  raw_path: "data/raw/PJME_hourly.csv"
   train_path: "data/train.csv"
   test_path: "data/test.csv"
-  datetime_col: "datetime"
-  target: "energy_consumption"
+  datetime_col: "Datetime"
+  target: "PJME_MW"
   features:
-    - temperature
-    - humidity
-    - windspeed
     - hour
     - dayofweek
     - month
