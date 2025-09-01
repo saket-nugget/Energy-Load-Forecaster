@@ -32,7 +32,7 @@ def merge_weather_data(df: pd.DataFrame, weather_df: pd.DataFrame, datetime_col:
 
 
 def load_data(config_path: str = "configs/config.yaml", weather_df: pd.DataFrame = None):
-    config = load_config(config_path)
+    config = Config(config_path)
     dataset_cfg = config["dataset"]
 
     # load raw dataset

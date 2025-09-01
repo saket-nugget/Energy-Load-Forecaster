@@ -5,32 +5,30 @@ import numpy as np
 import pandas as pd
 import os
 
-from src.model import TransformerForecaster
+# use build_model factory from src.model
+from src.model import build_model
 from src.preprocessing import preprocess_data
 from utils.data_loader import load_data
 from utils.logger import get_logger
-from utils.config import load_config
+from utils.config import Config
 
 
 def evaluate():
-    config = load_config("configs/config.yaml")
+    config = Config("configs/config.yaml")
 
     logger = get_logger("evaluate")
 
-    test_df, _ = load_data(config["data"]["test_path"], None)
+    # NOTE: load_data signature / usage will be aligned in a later step
+    test_path = config.get("dataset","raw_path")
+    test_df, _ = load_data(test_path, None)
     X_test, y_test = preprocess_data(test_df, config)
 
     X_test = torch.tensor(X_test, dtype=torch.float32)
     y_test = torch.tensor(y_test, dtype=torch.float32)
 
-    model = TransformerForecaster(
-        input_dim=config["model"]["input_dim"],
-        model_dim=config["model"]["model_dim"],
-        num_heads=config["model"]["num_heads"],
-        num_layers=config["model"]["num_layers"],
-        output_dim=config["model"]["output_dim"],
-        dropout=config["model"]["dropout"]
-    )
+    # Build the model using shared factory
+    model = build_model(config.config)
+
     model.load_state_dict(torch.load("outputs/forecasts/best_model.pth"))
     model.eval()
 

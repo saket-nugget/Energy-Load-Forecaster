@@ -53,7 +53,7 @@ class TransformerForecaster(nn.Module):
 
 
 def build_model(config):
-    model_config = config["model"]
+    model_config = config.get("model")
 
     model = TransformerForecaster(
         input_length=model_config["input_length"],

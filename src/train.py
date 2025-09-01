@@ -5,18 +5,20 @@ from torch.utils.data import DataLoader, TensorDataset
 import yaml
 import os
 
-from src.model import TransformerForecaster
+# use build_model factory from src.model
+from src.model import build_model
 from src.preprocessing import preprocess_data
 from utils.data_loader import load_data
 from utils.logger import get_logger
-from utils.config import load_config
+from utils.config import Config
 
 
 def train():
-    config = load_config("configs/config.yaml")
+    config = Config("configs/config.yaml")
 
     logger = get_logger("train")
 
+    # NOTE: other load_data / preprocess_data mismatches will be fixed in later steps
     train_df, val_df = load_data(config["data"]["train_path"],
                                  config["data"]["val_path"])
     X_train, y_train = preprocess_data(train_df, config)
@@ -30,14 +32,8 @@ def train():
     train_loader = DataLoader(train_dataset, batch_size=config["training"]["batch_size"], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=config["training"]["batch_size"], shuffle=False)
 
-    model = TransformerForecaster(
-        input_dim=config["model"]["input_dim"],
-        model_dim=config["model"]["model_dim"],
-        num_heads=config["model"]["num_heads"],
-        num_layers=config["model"]["num_layers"],
-        output_dim=config["model"]["output_dim"],
-        dropout=config["model"]["dropout"]
-    )
+    # Build model using the shared factory
+    model = build_model(config)
 
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=config["training"]["learning_rate"])
