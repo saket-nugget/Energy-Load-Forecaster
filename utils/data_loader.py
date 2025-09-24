@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
 from utils.logger import get_logger
-from utils.config import load_config
+from utils.config import Config
 
 logger = get_logger(__name__)
 

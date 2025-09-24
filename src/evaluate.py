@@ -26,7 +26,7 @@ def evaluate():
     y_test = torch.tensor(y_test, dtype=torch.float32)
 
     # Build the model using shared factory
-    model = build_model(config.config)
+    model = build_model(config)
 
     model.load_state_dict(torch.load("outputs/forecasts/best_model.pth"))
     model.eval()

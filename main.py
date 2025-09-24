@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from utils.config import load_config
+from utils.config import Config
 from utils.data_loader import load_data
 from utils.logger import get_logger
 
@@ -13,8 +13,8 @@ from src.anomaly_detection import detect_anomalies
 
 
 def main():
-    config = load_config("configs/config.yaml")
-    logger = get_logger("Energy-Load-Forecaster", log_path="outputs/logs/run.log")
+    config = Config("configs/config.yaml")
+    logger = get_logger("Energy-Load-Forecaster", log_dir="outputs/logs/run.log")
 
     logger.info("Pipeline started.")
 
@@ -32,11 +32,11 @@ def main():
     logger.info("Training model...")
     model = TransformerForecaster(
         input_dim=X_train.shape[-1],
-        d_model=config["model"]["d_model"],
-        nhead=config["model"]["nhead"],
-        num_encoder_layers=config["model"]["num_layers"],
-        dim_feedforward=config["model"]["ff_dim"],
-        dropout=config["model"]["dropout"],
+        d_model=config.get("model", "d_model"),
+        nhead=config.get("model", "nhead"),
+        num_encoder_layers=config.get("model", "num_layers"),
+        dim_feedforward=config.get("model", "ff_dim"),
+        dropout=config.get("model", "dropout"),
         output_dim=1
     )
 
