@@ -18,6 +18,7 @@ model:
   hidden_size: 128
   num_layers: 4
   dropout: 0.2
+  num_heads: 4
 
 
 training:

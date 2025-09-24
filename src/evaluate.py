@@ -1,58 +1,71 @@
 # src/evaluate.py
+
+import os
 import torch
 import numpy as np
 import pandas as pd
-import os
+from torch.utils.data import DataLoader, TensorDataset
 
-# use build_model factory from src.model
+from utils.config import Config
+from utils.logger import get_logger
+from utils.data_loader import load_dataset
 from src.model import build_model
 from src.preprocessing import Preprocessor
-from utils.data_loader import load_data
-from utils.logger import get_logger
-from utils.config import Config
 
-
-def evaluate():
-    config = Config("configs/config.yaml")
-
+def run_evaluation(config):
+    """
+    Runs the model evaluation pipeline.
+    """
     logger = get_logger("evaluate")
 
-    # NOTE: load_data signature / usage will be aligned in a later step
-    test_path = config.get("dataset","raw_path")
-    test_df, _ = load_data(test_path, None)
-    X_test, y_test = Preprocessor.preprocess(test_df, config)
-
-    X_test = torch.tensor(X_test, dtype=torch.float32)
-    y_test = torch.tensor(y_test, dtype=torch.float32)
-
-    # Build the model using shared factory
+    logger.info("1. Loading test data and preprocessor...")
+    raw_df = load_dataset(config.get("dataset", "raw_path"))
+    
+    train_size = int(len(raw_df) * 0.7)
+    val_size = int(len(raw_df) * 0.15)
+    test_df = raw_df[train_size + val_size:]
+    
+    preprocessor_path = os.path.join(config.get("output", "forecasts_dir"), "preprocessor.joblib")
+    preprocessor = Preprocessor.load(preprocessor_path)
+    X_test, y_test = preprocessor.transform(test_df)
+    logger.info(f"Test data loaded and processed. Shape: X_test: {X_test.shape}, y_test: {y_test.shape}")
+    
+    logger.info("2. Creating PyTorch DataLoader...")
+    batch_size = config.get("training", "batch_size")
+    test_dataset = TensorDataset(torch.tensor(X_test, dtype=torch.float32), torch.tensor(y_test, dtype=torch.float32))
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    
+    logger.info("3. Loading model and evaluating...")
     model = build_model(config)
-
-    model.load_state_dict(torch.load("outputs/forecasts/best_model.pth"))
+    # ... (rest of the file is identical) ...
+    model_path = os.path.join(config.get("output", "forecasts_dir"), "best_model.pth")
+    model.load_state_dict(torch.load(model_path))
     model.eval()
 
+    predictions, actuals = [], []
     with torch.no_grad():
-        predictions = model(X_test).numpy()
-        y_true = y_test.numpy()
+        for X_batch, y_batch in test_loader:
+            outputs = model(X_batch)
+            predictions.append(outputs.numpy())
+            actuals.append(y_batch.numpy())
 
-    mae = np.mean(np.abs(y_true - predictions))
-    rmse = np.sqrt(np.mean((y_true - predictions) ** 2))
-    mape = np.mean(np.abs((y_true - predictions) / (y_true + 1e-8))) * 100
+    predictions = np.concatenate(predictions)
+    actuals = np.concatenate(actuals)
 
-    metrics = {
-        "MAE": mae,
-        "RMSE": rmse,
-        "MAPE": mape
-    }
+    mae = np.mean(np.abs(actuals - predictions))
+    rmse = np.sqrt(np.mean((actuals - predictions) ** 2))
+    mape = np.mean(np.abs((actuals - predictions) / (actuals + 1e-8))) * 100
+    metrics = {"MAE": mae, "RMSE": rmse, "MAPE": mape}
+    logger.info(f"Evaluation Metrics: {metrics}")
 
-    logger.info(f"📊 Evaluation Metrics: {metrics}")
-
-    os.makedirs("outputs/evaluation", exist_ok=True)
-    pd.DataFrame(predictions, columns=["forecast"]).to_csv("outputs/evaluation/forecasts.csv", index=False)
-    pd.DataFrame([metrics]).to_csv("outputs/evaluation/metrics.csv", index=False)
-
-    logger.info("✅ Forecasts and metrics saved in outputs/evaluation/")
-
+    eval_dir = "outputs/evaluation"
+    os.makedirs(eval_dir, exist_ok=True)
+    pd.DataFrame([metrics]).to_csv(os.path.join(eval_dir, "metrics.csv"), index=False)
+    pd.DataFrame({"actuals": actuals.flatten(), "predictions": predictions.flatten()}).to_csv(os.path.join(eval_dir, "predictions.csv"), index=False)
+    
+    logger.info("✅ Evaluation complete.")
+    return actuals, predictions
 
 if __name__ == "__main__":
-    evaluate()
+    config = Config("configs/config.yaml")
+    run_evaluation(config)
