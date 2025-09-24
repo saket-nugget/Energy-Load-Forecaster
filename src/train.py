@@ -7,7 +7,7 @@ import os
 
 # use build_model factory from src.model
 from src.model import build_model
-from src.preprocessing import preprocess_data
+from src.preprocessing import Preprocessor
 from utils.data_loader import load_data
 from utils.logger import get_logger
 from utils.config import Config
@@ -21,8 +21,8 @@ def train():
     # NOTE: other load_data / preprocess_data mismatches will be fixed in later steps
     train_df, val_df = load_data(config["data"]["train_path"],
                                  config["data"]["val_path"])
-    X_train, y_train = preprocess_data(train_df, config)
-    X_val, y_val = preprocess_data(val_df, config)
+    X_train, y_train = Preprocessor.preprocess(train_df, config)
+    X_val, y_val = Preprocessor.preprocess(val_df, config)
 
     train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32),
                                   torch.tensor(y_train, dtype=torch.float32))

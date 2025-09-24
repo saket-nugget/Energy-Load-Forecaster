@@ -6,7 +6,7 @@ import os
 
 # use build_model factory from src.model
 from src.model import build_model
-from src.preprocessing import preprocess_data
+from src.preprocessing import Preprocessor
 from utils.data_loader import load_data
 from utils.logger import get_logger
 from utils.config import Config
@@ -20,7 +20,7 @@ def evaluate():
     # NOTE: load_data signature / usage will be aligned in a later step
     test_path = config.get("dataset","raw_path")
     test_df, _ = load_data(test_path, None)
-    X_test, y_test = preprocess_data(test_df, config)
+    X_test, y_test = Preprocessor.preprocess(test_df, config)
 
     X_test = torch.tensor(X_test, dtype=torch.float32)
     y_test = torch.tensor(y_test, dtype=torch.float32)

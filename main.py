@@ -14,7 +14,8 @@ from src.anomaly_detection import detect_anomalies
 
 def main():
     config = Config("configs/config.yaml")
-    logger = get_logger("Energy-Load-Forecaster", log_dir="outputs/logs/run.log")
+    logger = get_logger("Energy-Load-Forecaster", log_dir="outputs/logs")
+
 
     logger.info("Pipeline started.")
 
@@ -22,8 +23,9 @@ def main():
     test_path = "data/test.csv"
 
     logger.info("Loading data...")
-    train_df = load_data(train_path)
-    test_df = load_data(test_path)
+    train_df = pd.read_csv(train_path)
+    test_df = pd.read_csv(test_path)
+
 
     logger.info("Preprocessing data...")
     X_train, y_train, scaler = preprocess_data(train_df, config)
