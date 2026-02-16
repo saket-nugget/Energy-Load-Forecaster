@@ -52,7 +52,13 @@ def run_training(config):
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     logger.info("4. Building and training model...")
+    # Detect device
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+    logger.info(f"Using device: {device}")
+
     model = build_model(config)
+    model.to(device)
+
     # ... (rest of the file is identical) ...
     training_cfg = config.get("training")
     output_dir = config.get("output", "forecasts_dir")
@@ -65,18 +71,28 @@ def run_training(config):
     for epoch in range(training_cfg["epochs"]):
         model.train()
         train_loss = 0.0
+        batch_count = 0
+        total_batches = len(train_loader)
+        
         for X_batch, y_batch in train_loader:
+            X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+            
             optimizer.zero_grad()
             outputs = model(X_batch)
             loss = criterion(outputs, y_batch)
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
+            
+            batch_count += 1
+            if batch_count % 100 == 0:
+                logger.info(f"Epoch {epoch+1} | Batch {batch_count}/{total_batches} | Loss: {loss.item():.4f}")
 
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
             for X_batch, y_batch in val_loader:
+                X_batch, y_batch = X_batch.to(device), y_batch.to(device)
                 outputs = model(X_batch)
                 loss = criterion(outputs, y_batch)
                 val_loss += loss.item()
@@ -89,7 +105,7 @@ def run_training(config):
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             torch.save(model.state_dict(), os.path.join(output_dir, "best_model.pth"))
-            logger.info(f"✅ New best model saved with validation loss: {best_val_loss:.4f}")
+            logger.info(f"New best model saved with validation loss: {best_val_loss:.4f}")
 
     logger.info("🏁 Training complete.")
 
