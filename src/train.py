@@ -20,7 +20,12 @@ def run_training(config):
     logger = get_logger("train")
     
     logger.info("1. Loading and splitting data for training...")
-    raw_df = load_dataset(config.get("dataset", "raw_path"))
+    raw_path = config.get("dataset", "raw_path")
+    if not os.path.exists(raw_path):
+        logger.error(f"Dataset not found at {raw_path}. Please run 'python src/download_data.py' first.")
+        raise FileNotFoundError(f"Dataset not found at {raw_path}")
+
+    raw_df = load_dataset(raw_path)
     
     train_size = int(len(raw_df) * 0.7)
     val_size = int(len(raw_df) * 0.15)
