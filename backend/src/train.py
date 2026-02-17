@@ -107,7 +107,7 @@ def run_training(config):
             torch.save(model.state_dict(), os.path.join(output_dir, "best_model.pth"))
             logger.info(f"New best model saved with validation loss: {best_val_loss:.4f}")
 
-    logger.info("🏁 Training complete.")
+    logger.info("Training complete.")
 
 if __name__ == "__main__":
     config = Config("configs/config.yaml")

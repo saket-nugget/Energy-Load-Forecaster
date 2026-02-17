@@ -112,7 +112,7 @@ def run_evaluation(config):
     pd.DataFrame([metrics]).to_csv(os.path.join(eval_dir, "metrics.csv"), index=False)
     pd.DataFrame({"actuals": actuals.flatten(), "predictions": predictions.flatten()}).to_csv(os.path.join(eval_dir, "predictions.csv"), index=False)
     
-    logger.info("✅ Evaluation complete.")
+    logger.info("Evaluation complete.")
     return actuals, predictions
 
 if __name__ == "__main__":
