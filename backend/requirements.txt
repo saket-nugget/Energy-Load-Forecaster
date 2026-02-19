@@ -3,7 +3,7 @@ fastapi
 uvicorn
 pydantic
 python-multipart
-torch
+
 pandas
 scikit-learn
 PyYAML

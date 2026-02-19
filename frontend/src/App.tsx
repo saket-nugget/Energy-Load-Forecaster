@@ -37,7 +37,7 @@ function App() {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
     const [logs, setLogs] = useState<LogEntry[]>([])
 
-    const API_URL = 'http://localhost:8000'
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
     const addLog = (message: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
         setLogs(prev => [{ timestamp: new Date(), message, type }, ...prev].slice(0, 50))
