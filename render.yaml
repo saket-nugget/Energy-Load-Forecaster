@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: elf-backend
+    runtime: docker
+    rootDir: backend
+    plan: free
+    region: ohio
+    envVars:
+      - key: PORT
+        value: 8000
